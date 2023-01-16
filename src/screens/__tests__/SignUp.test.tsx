@@ -1,6 +1,6 @@
 import { fireEvent } from '@testing-library/react-native';
 import React from 'react';
-import { render } from '../../__mocks__/wrapper';
+import { render } from '../../__mocks__/utils/wrapper';
 import SignUp from '../SignUp';
 
 const mockedNavigate = jest.fn();

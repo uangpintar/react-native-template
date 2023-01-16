@@ -15,7 +15,7 @@ describe('Setting screen', () => {
     await element(by.id('btn-back')).tap();
   });
 
-  it('can navigate to A/B testing  demo', async () => {
+  it('can navigate to A/B testing demo', async () => {
     await element(by.id('btn-ab-testing')).tap();
     await expect(element(by.id('ab-testing-screen'))).toBeVisible();
     await element(by.id('btn-back')).tap();
@@ -23,7 +23,5 @@ describe('Setting screen', () => {
 
   it('can navigate show notification', async () => {
     await element(by.id('btn-notification')).tap();
-    // await device.sendUserNotification(localNotification);
-    // await expect(element(by.text('NotificationBody'))).toBeVisible();
   });
 });

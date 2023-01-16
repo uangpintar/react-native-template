@@ -1,15 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 import 'whatwg-fetch';
 import 'react-native-gesture-handler/jestSetup';
-import AbortController from 'abort-controller';
-import { fetch, Headers, Request, Response } from 'cross-fetch';
 import * as ReactNative from 'react-native';
-
-global.fetch = fetch;
-global.Headers = Headers;
-global.Request = Request;
-global.Response = Response;
-global.AbortController = AbortController;
 
 jest.mock('redux-persist', () => {
   const real = jest.requireActual('redux-persist');

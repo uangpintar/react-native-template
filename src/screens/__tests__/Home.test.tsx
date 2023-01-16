@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, render, waitFor } from '../../__mocks__/wrapper';
+import { fireEvent, render, waitFor } from '../../__mocks__/utils/wrapper';
 import Home from '../Home';
 
 describe('Home screen', () => {

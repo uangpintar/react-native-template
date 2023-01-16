@@ -1,6 +1,6 @@
 import { renderHook } from '@testing-library/react-hooks/native';
 import React from 'react';
-import { fireEvent, render, waitFor } from '../../__mocks__/wrapper';
+import { fireEvent, render, waitFor } from '../../__mocks__/utils/wrapper';
 import { ABTest1 } from '../ABTesting';
 import { useABTesting } from '../ABTesting/hook';
 

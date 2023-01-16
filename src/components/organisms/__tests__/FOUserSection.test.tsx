@@ -1,52 +1,49 @@
 import 'react-native';
 import React from 'react';
+import * as hooks from '../../../services/user';
 import FOUserSection from '../FOUserSection';
-import { AllTheProviders, render } from '../../../__mocks__/wrapper';
-import { renderHook } from '@testing-library/react-hooks/native';
-import { useGetUserListQuery } from '../../../services';
-import { products } from '../../../__mocks__/testData';
-
-const updateTimeout = 5000;
-
-beforeEach((): void => {
-  fetchMock.resetMocks();
-});
+import { act, render } from '../../../__mocks__/utils/wrapper';
+import { users } from '../../../__mocks__/testData';
 
 describe('FOUserSection screen', () => {
-  it('handles good response', async () => {
-    fetchMock.mockResponse(JSON.stringify({ data: products }));
-
-    const { result, waitForNextUpdate } = renderHook(() => useGetUserListQuery(undefined), {
-      wrapper: AllTheProviders,
+  it('shows loading test', async () => {
+    jest.spyOn(hooks, 'useGetUserListQuery').mockReturnValue({
+      isFetching: true,
+      refetch: function (): void {
+        throw new Error('Function not implemented.');
+      },
     });
-    const { getByText, container } = render(<FOUserSection />);
-
-    const initialResponse = result.current;
-    expect(initialResponse.data).toBeUndefined();
-    expect(initialResponse.isLoading).toBe(true);
-    expect(getByText('Loading')).toBeDefined();
-    await waitForNextUpdate({ timeout: updateTimeout });
-    expect(container).toBeDefined();
-
-    const nextResponse = result.current;
-    expect(nextResponse.data).toBeDefined();
-    expect(nextResponse.isLoading).toBe(false);
-    expect(nextResponse.isSuccess).toBe(true);
+    const { getByText } = render(<FOUserSection />);
+    await act(async () => {
+      expect(getByText('Loading')).toBeDefined();
+    });
   });
 
-  it('handles error response', async () => {
-    fetchMock.mockReject(new Error('Internal Server Error'));
-    const { result, waitForNextUpdate } = renderHook(() => useGetUserListQuery(undefined), {
-      wrapper: AllTheProviders,
+  it('can shows 3 data correctly', async () => {
+    jest.spyOn(hooks, 'useGetUserListQuery').mockReturnValue({
+      data: users,
+      isError: false,
+      isLoading: false,
+      refetch: function (): void {
+        throw new Error('Function not implemented.');
+      },
     });
-    const initialResponse = result.current;
-    expect(initialResponse.data).toBeUndefined();
-    expect(initialResponse.isLoading).toBe(true);
-    await waitForNextUpdate({ timeout: updateTimeout });
+    const { findAllByTestId } = render(<FOUserSection />);
+    expect((await findAllByTestId('FMUsersCard')).length).toBe(3);
+  });
 
-    const nextResponse = result.current;
-    expect(nextResponse.data).toBeUndefined();
-    expect(nextResponse.isLoading).toBe(false);
-    expect(nextResponse.isError).toBe(true);
+  it('can show error message', async () => {
+    jest.spyOn(hooks, 'useGetUserListQuery').mockReturnValue({
+      data: null,
+      error: true,
+      isLoading: false,
+      refetch: function (): void {
+        throw new Error('Function not implemented.');
+      },
+    });
+    const { getByText } = render(<FOUserSection />);
+    await act(async () => {
+      expect(getByText('There was an error')).toBeDefined();
+    });
   });
 });

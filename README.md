@@ -1,5 +1,12 @@
 # :pushpin: React Native Boilerplate
 
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=venxik_react-native-boilerplate&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=venxik_react-native-boilerplate)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=venxik_react-native-boilerplate&metric=coverage)](https://sonarcloud.io/summary/new_code?id=venxik_react-native-boilerplate)
+[![CD-Distribute Android to Firebase](https://github.com/venxik/react-native-boilerplate/actions/workflows/distributeAndroid.yml/badge.svg)](https://github.com/venxik/react-native-boilerplate/actions/workflows/distributeAndroid.yml)
+[![CI-Check Commit Message & SonarCloud](https://github.com/venxik/react-native-boilerplate/actions/workflows/build.yml/badge.svg)](https://github.com/venxik/react-native-boilerplate/actions/workflows/build.yml)
+[![CI-Android](https://github.com/venxik/react-native-boilerplate/actions/workflows/android.yml/badge.svg)](https://github.com/venxik/react-native-boilerplate/actions/workflows/android.yml)
+[![CI-iOS](https://github.com/venxik/react-native-boilerplate/actions/workflows/ios.yml/badge.svg)](https://github.com/venxik/react-native-boilerplate/actions/workflows/ios.yml)
+
 React Native boilerplate repository version 0.0.1
 
 ## ⚡️Getting Started
@@ -34,7 +41,6 @@ Make sure you already React Native environment running in you machine. Please re
 
 NOTES: This boilerplate uses `yarn` as main command, not `npm`.
 
-Make sure to open android simulator or connect android devices.
 To make sure android emulator have the same port with metro bundler, run this command first
 
 ```shell
@@ -51,15 +57,13 @@ yarn run:android-debug
 Example how to run android with staging env
 
 ```shell
-//To make sure devices have the same port with metro bundler
 yarn android:local
 yarn run:android-staging
 ```
 
-Example how to run android with release env
+Example how to run android with production env
 
 ```shell
-//To make sure devices have the same port with metro bundler
 yarn android:local
 yarn run:android-prod
 ```
@@ -86,7 +90,7 @@ Example how to run ios with staging env
 yarn run:ios-staging
 ```
 
-Example how to run ios with release env
+Example how to run ios with production env
 
 ```shell
 yarn run:ios-prod
@@ -101,12 +105,8 @@ If there is any error when running these commands, try to run with Xcode
 3. staging
 
 In android there are 3 product flavor: `dev`, `prod`, `staging`.
-In ios there are 3 scheme: `Boilerplate`, `Boilerplate Prod`, `Boilerplate Staging`.
+In iOS there are 3 scheme: `Boilerplate`, `Boilerplate Prod`, `Boilerplate Staging`.
 All of them are already correspond with the env.
-
-### :test_tube: How to Test Coverage
-
-Run `yarn test:cov` and it will generate coverage report on .coverage folder
 
 ### :new: Versioning
 
@@ -430,12 +430,12 @@ const reducerPath = 'productsAPI';
 export const productsAPI = createApi({
   reducerPath: reducerPath,
   baseQuery: functionsBaseQuery(),
-  tagTypes: ['Products'], //We provide tags that are available for this api
+  tagTypes: ['Products'], //Provide tags that are available for this api
   keepUnusedDataFor: process.env.NODE_ENV !== 'test' ? 60 : 0,
   endpoints: (builder) => ({
-    getProduct: builder.query<IProducts, string>({ //Rule of thumb, mutation is used for GET method
+    getProduct: builder.query<IProducts, string>({ //Rule of thumb, query is used for GET method
       query: (query) => `/products/search?q=${query}`,
-      providesTags: ['Products'], // We provide the corresponding tags
+      providesTags: ['Products'], //Provide the corresponding tags from tagTypes
     }),
     refetchProducts: builder.mutation<null, void>({ //Rule of thumb, mutation is used for POST, PATCH, DELETE method
       // The query is not relevant here, so a `null` returning `queryFn` is used
@@ -458,12 +458,16 @@ export const productsQueryReducer = { [reducerPath]: productsAPI.reducer };
 **This is only for android**. To upload a "beta" version to firebase, you can run command
 
 ```shell
-  beta:android
+  android:beta
 ```
 
 ### :smiling_imp: Unit Testing
 
 Unit testing uses jest. You can navigate to [here](./src/screens/__tests__/) to see some unit test examples
+
+### :test_tube: How to Test Coverage
+
+Run `yarn test:cov` and it will generate coverage report on .coverage folder
 
 ### :smiling_imp: Detox end-to-end testing
 
@@ -484,47 +488,37 @@ build:e2e-android-dev-debug
 test:e2e-android-dev-debug
 ```
 
-### Jest example to mock service response
+### :smiling_imp: Jest example to mock service response using jest-fetch-mock
 
-You can see the example in `src/components/organisms/__tests__` based on [this article](https://medium.com/@johnmcdowell0801/testing-rtk-query-with-jest-cdfa5aaf3dc1).
+You can see the example in `src/services/__tests__/products.test.ts` based on [this article](https://medium.com/@johnmcdowell0801/testing-rtk-query-with-jest-cdfa5aaf3dc1).
 
 ```javascript
-import React from 'react';
-import FOProductsSection from '../FOProductsSection';
-import { AllTheProviders, render } from '../../../__mocks__/wrapper';
+import { AllTheProviders } from '../../__mocks__/utils/wrapper';
 import { renderHook } from '@testing-library/react-hooks/native';
-import { useGetProductQuery } from '../../../services';
-import { products } from '../../../__mocks__/testData';
+import { useGetProductQuery } from '../../services';
+import { products } from '../../__mocks__/testData';
 
 const updateTimeout = 5000;
 
-beforeEach(() => {
-  fetchMock.resetMocks(); //reset fetchmock before each test case runs
-});
-
 describe('FOProductsSection screen', () => {
   it('handles good response', async () => {
-    fetchMock.mockResponse(JSON.stringify({ data: products })); // we mock the wanted response here
+    fetchMock.mockResponse(JSON.stringify({ data: products }));
     const { result, waitForNextUpdate } = renderHook(() => useGetProductQuery(undefined), {
       wrapper: AllTheProviders,
     });
-    const { getByText, container } = render(<FOProductsSection query={'Apple'} />);
-
     const initialResponse = result.current;
     expect(initialResponse.data).toBeUndefined();
     expect(initialResponse.isLoading).toBe(true);
-    expect(getByText('Loading')).toBeDefined();
     await waitForNextUpdate({ timeout: updateTimeout });
-    expect(container).toBeDefined();
 
     const nextResponse = result.current;
-    expect(nextResponse.data).not.toBeUndefined();
+    expect(nextResponse.data).toBeDefined();
     expect(nextResponse.isLoading).toBe(false);
     expect(nextResponse.isSuccess).toBe(true);
   });
 
   it('handles error response', async () => {
-    fetchMock.mockReject(new Error('Internal Server Error')); //we mock the error response here
+    fetchMock.mockReject(new Error('Internal Server Error'));
     const { result, waitForNextUpdate } = renderHook(() => useGetProductQuery(undefined), {
       wrapper: AllTheProviders,
     });
@@ -538,6 +532,33 @@ describe('FOProductsSection screen', () => {
     expect(nextResponse.data).toBeUndefined();
     expect(nextResponse.isLoading).toBe(false);
     expect(nextResponse.isError).toBe(true);
+  });
+});
+```
+
+### :smiling_imp: Jest example to mock service response for component
+
+You can see the example in `src/components/organisms/__tests__/FOProductsSection.test.tsx` based on [this article](https://bionicjulia.com/blog/implementing-rtk-query-in-react-native-app).
+
+```javascript
+import React from 'react';
+import * as hooks from '../../../services/products';
+import FOProductsSection from '../FOProductsSection';
+import { render } from '../../../__mocks__/utils/wrapper';
+import { products } from '../../../__mocks__/testData';
+
+describe('FOProductsSection screen', () => {
+  it('can shows 4 data correctly', async () => {
+    jest.spyOn(hooks, 'useGetProductQuery').mockReturnValue({
+      data: products,
+      isError: false,
+      isLoading: false,
+      refetch: function (): void {
+        throw new Error('Function not implemented.');
+      },
+    });
+    const { findAllByTestId } = render(<FOProductsSection query={'Apple'} />);
+    expect((await findAllByTestId('FMProductsCard')).length).toBe(4);
   });
 });
 ```

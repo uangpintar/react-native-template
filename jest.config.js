@@ -9,10 +9,10 @@ module.exports = {
   // transformIgnorePatterns: ['node_modules/?!(static-container)'],
   coveragePathIgnorePatterns: [
     '<rootDir>/src/theme/',
-    '<rootDir>/src/services/',
     '<rootDir>/src/config/',
     '<rootDir>/src/global/',
     '<rootDir>/src/navigation/',
+    '<rootDir>/scripts/',
   ],
   transformIgnorePatterns: [
     'node_modules/(?!(jest-)?@?react-native|react-native|@react-navigation/.*|@react-native-community/.*|native-base/.*)',

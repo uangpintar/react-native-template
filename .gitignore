@@ -69,6 +69,7 @@ buck-out/
 .coverage
 
 # Config Environment
+.env
 .env.development
 .env.production
 .env.staging

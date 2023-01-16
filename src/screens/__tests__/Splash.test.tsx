@@ -1,7 +1,7 @@
 import React from 'react';
 import Splash from '../Splash';
-import timeTravel, { setupTimeTravel } from '../../__mocks__/timeTravel';
-import { render } from '../../__mocks__/wrapper';
+import timeTravel, { setupTimeTravel } from '../../__mocks__/utils/timeTravel';
+import { render } from '../../__mocks__/utils/wrapper';
 
 beforeEach(() => {
   setupTimeTravel();

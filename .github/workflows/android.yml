@@ -1,37 +1,31 @@
-name: Distribute to firebase
+name: CI-Android
 
 on:
-  # push:
-  #   branches: [develop, main, hotfix/fastlane-github-action]
-  workflow_disptach:
+  push:
+    branches: [main, develop, hotfix/detox-github-action]
 
 jobs:
-  distribute:
+  e2e-test:
+    name: e2e Android test
     runs-on: macos-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v1
+        with:
+          fetch-depth: 0
 
-      - name: Setup Node.js
+      - name: Setup node.js
         uses: actions/setup-node@v2
         with:
           node-version: '18'
 
-      - name: Set up our JDK environment # setup JDK environment: mandatory as we need to build  android project
+      - name: Set up our JDK environment # setup JDK environment: mandatory as we need to build android project
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '17'
           cache: 'gradle'
-
-      - name: Install Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: '2.7.0'
-          bundler-cache: true
-
-      - name: Install Fastlane
-        run: cd android && bundle install && cd ..
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
@@ -46,13 +40,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-
 
-      - name: Install dependencies # install project deps with --frozen-lockfile to make sure we will have the same packages version ( very recommended  on running yarn install on ci)
-        run: yarn install --frozen-lockfile
+      - name: Install dependencies
+        run: |
+          yarn install --frozen-lockfile
 
-      - name: Install packages
-        run: yarn install
-
-      ## configure cash for gradle : will help to reduce build time
+      ## configure cache for gradle : will help to reduce build time
       - name: Cache Gradle Wrapper
         uses: actions/cache@v2
         with:
@@ -66,6 +58,12 @@ jobs:
           key: ${{ runner.os }}-gradle-caches-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
           restore-keys: |
             ${{ runner.os }}-gradle-caches-
+
+      # - name: Download Android Emulator Image
+      #   run: |
+      #     echo "y" | $ANDROID_HOME/tools/bin/sdkmanager --install "system-images;android-30;default;x86"
+      #     echo "no" | $ANDROID_HOME/tools/bin/avdmanager create avd --force --name emu --device "Pixel" -k 'system-images;android-30;default;x86'
+      #     $ANDROID_HOME/emulator/emulator -list-avds
 
       - name: Configure Keystore
         run: |
@@ -82,21 +80,40 @@ jobs:
           KEYSTORE_KEY_PASSWORD: ${{ secrets.KEYSTORE_KEY_PASSWORD }}
           KEYSTORE_STORE_PASSWORD: ${{ secrets.KEYSTORE_STORE_PASSWORD }}
 
-      - name: Create Firebase Service Credentials file
-        run: |
-          cd android && echo "$FIREBASE_CREDENTIALS" > firebase_credentials.json.b64
-          base64 -d -i firebase_credentials.json.b64 > firebase_credentials.json && cd ..
-        env:
-          FIREBASE_CREDENTIALS: ${{ secrets.FIREBASE_CREDENTIALS }}
-
-      - name: Create google-services.json Credentials file
+      - name: Create google-services.json file
         run: |
           cd android/app && echo "$GOOGLE_SERVICES" > google-services.json.b64
           base64 -d -i google-services.json.b64 > google-services.json && cd ../..
         env:
           GOOGLE_SERVICES: ${{ secrets.GOOGLE_SERVICES }}
 
-      - name: Distribute app with 🔥 App Distribution 🚀
-        run: cd android && bundle exec fastlane beta
-        env:
-          FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
+      # - name: Android Emulator
+      #   timeout-minutes: 10
+      #   continue-on-error: true
+      #   run: |
+      #     echo "Starting emulator"
+      #     nohup $ANDROID_HOME/emulator/emulator -avd emu -no-audio -no-snapshot -no-window &
+      #     $ANDROID_HOME/platform-tools/adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed | tr -d '\r') ]]; do sleep 1; done; input keyevent 82'
+      #     $ANDROID_HOME/platform-tools/adb devices
+      #     echo "Emulator started"
+
+      - name: Run Detox Build
+        run: yarn build:e2e-android-dev-debug
+
+      - name: Run Detox Test(s)
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 30
+          target: default
+          arch: x86_64
+          profile: pixel
+          avd-name: Pixel_API_30_AOSP
+          enable-hw-keyboard: true
+          script: bash ${{ github.workspace }}/scripts/run-e2e-android-release.sh
+
+      - name: Store Detox artifacts on test failure
+        uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: detox-artifacts
+          path: artifacts # Default path for Detox artifacts

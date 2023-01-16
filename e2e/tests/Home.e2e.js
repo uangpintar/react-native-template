@@ -16,12 +16,14 @@ describe('Home screen', () => {
 
   it('can change products query and show updated products list', async () => {
     await element(by.id('input-products')).typeText('Apple');
+    await element(by.id('input-products')).tapReturnKey();
     await expect(element(by.id('FOProductsSection'))).toBeVisible();
   });
 
   it('can change products query and show no data', async () => {
     await element(by.id('input-products')).clearText();
     await element(by.id('input-products')).typeText('sadsad');
+    await element(by.id('input-products')).tapReturnKey();
     await expect(element(by.id('txt-no-data'))).toBeVisible();
   });
 });

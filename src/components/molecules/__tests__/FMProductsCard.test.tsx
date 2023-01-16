@@ -1,6 +1,6 @@
 import React from 'react';
 import FMProductsCard from '../FMProductsCard';
-import { render } from '../../../__mocks__/wrapper';
+import { render } from '../../../__mocks__/utils/wrapper';
 
 describe('FMProductsCard screen', () => {
   it('Render FMProductsCard correctly', () => {

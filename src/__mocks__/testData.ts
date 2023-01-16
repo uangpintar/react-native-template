@@ -30,3 +30,26 @@ export const products = {
     },
   ],
 };
+
+export const users = {
+  users: [
+    {
+      id: 1,
+      firstName: 'first name',
+      lastName: 'last name',
+      image: 'https://dummyjson.com/image/i/products/1/thumbnail.jpg',
+    },
+    {
+      id: 2,
+      firstName: 'first name',
+      lastName: 'last name',
+      image: 'https://dummyjson.com/image/i/products/1/thumbnail.jpg',
+    },
+    {
+      id: 3,
+      firstName: 'first name',
+      lastName: 'last name',
+      image: 'https://dummyjson.com/image/i/products/1/thumbnail.jpg',
+    },
+  ],
+};

@@ -71,9 +71,9 @@ const persistor = persistStore(store);
 
 // Infer the `RootState` and `AppDispatch` types from the store itself
 // Inferred type: {posts: PostsState, comments: CommentsState, users: UsersState}
-type AppDispatch = typeof store.dispatch;
 type RootState = ReturnType<typeof rootReducer>;
 type AppStore = ReturnType<typeof setupStore>;
+type AppDispatch = AppStore['dispatch'];
 
 const useReduxDispatch = () => useDispatch<AppDispatch>();
 const useReduxSelector: TypedUseSelectorHook<RootState> = useSelector;

@@ -1,6 +1,6 @@
 import React from 'react';
 import FMUsersCard from '../FMUsersCard';
-import { render } from '../../../__mocks__/wrapper';
+import { render } from '../../../__mocks__/utils/wrapper';
 
 describe('FMUsersCard screen', () => {
   it('Render FMUsersCard correctly', () => {

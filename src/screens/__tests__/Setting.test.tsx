@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, waitFor } from '../../__mocks__/wrapper';
+import { render, waitFor } from '../../__mocks__/utils/wrapper';
 import Setting from '../Setting';
 
 const mockedNavigate = jest.fn();

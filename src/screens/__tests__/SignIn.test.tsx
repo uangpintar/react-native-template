@@ -1,7 +1,7 @@
 import React from 'react';
 import SignIn from '../SignIn';
 import { renderHook, act } from '@testing-library/react-hooks/native';
-import { render, fireEvent, waitFor, cleanup } from '../../__mocks__/wrapper';
+import { render, fireEvent, waitFor, cleanup } from '../../__mocks__/utils/wrapper';
 import { useSignIn } from '../SignIn/hook';
 
 const mockedNavigate = jest.fn();
